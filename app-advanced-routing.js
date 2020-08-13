@@ -2,9 +2,12 @@ const express = require('express')
 const bodyParser = require("body-parser");
 const app = express()
 const port = 3000
+const router = express.Router()
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+app.use('/mystuffs',router)
 
 function Movie(id, title, category) {
   this.title = title
@@ -17,14 +20,11 @@ let movies = [
   new Movie(2,"Inception","movie"),
   new Movie(3,"The Martian","movie"),
   new Movie(4,"Extraction","show"),
-  new Movie(5,"Money Heist","show")
+  new Movie(5,"Money Heist","show"),
+  new Movie(6,"The Old Guard","show")
 ]
 
 app.get('/movies', (req, res) => {
-  res.send(movies)
-})
-
-app.get('/movies/search', (req, res) => {
   let category = req.query.cat
   let title = req.query.title
   let limit = req.query.limit
@@ -36,7 +36,7 @@ app.get('/movies/search', (req, res) => {
     hits = hits.filter(element => element.title.includes(title))
   }
   if (limit !== undefined) {
-    hits= hits.slice(0,Number(limit))
+    hits = hits.slice(0,Number(limit))
   }
   res.send(hits)
 })

@@ -2,6 +2,10 @@ const express = require('express')
 const app = express()
 const port = 3000
 
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`)
+})
+
 let movies = [
   {
     id: 1,
@@ -27,33 +31,42 @@ let movies = [
     id: 5,
     title: "Money Heist",
     category: "show"
-  },
-
-
+  }
 ]
 
-app.get('/movies', (req, res) => {
-  res.send(movies)
+app.get('/', (req, res) => {
+  //res.send('Hello World!')
+  res.status(403).send("Not allowed")
 })
 
-app.get('/movies/search', (req, res) => {
-  let category = req.query.cat
+// /movies
+app.get('/movies', (req, res) => {
+  let category = req.query.category
+  let title = req.query.title
   let limit = req.query.limit
   let hits = movies
   if (category !== undefined) {
     hits = hits.filter(element => element.category === category)
   }
+  if (title !== undefined) {
+    hits = hits.filter(element => element.title.includes(title))
+  }
   if (limit !== undefined) {
-    hits= hits.slice(0,Number(limit))
+    hits = hits.slice(0,Number(limit))
   }
   res.send(hits)
 })
 
+// /movies/1
 app.get('/movies/:id', (req, res) => {
   let id = Number(req.params.id); 
   let mymovie = movies.find(movie => movie.id === id)
- // let mymovie = movies.find(findMovie(id))
-  res.send(mymovie)
+  if (mymovie !== undefined) {
+    res.send(mymovie)
+  } else {
+    res.status(404).send('not found')
+  }
+  
 })
 
 app.delete('/movies/:id', (req, res) => {
@@ -61,21 +74,4 @@ app.delete('/movies/:id', (req, res) => {
   let index = movies.findIndex(movie => movie.id === id)
   movies.splice(index,1)
   res.send("ok")
-})
-
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-
-
-let findMovie = function(id) {
-  return function(movie) {
-    return movie.id === id
-  }
-}
-
-
-
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
 })
